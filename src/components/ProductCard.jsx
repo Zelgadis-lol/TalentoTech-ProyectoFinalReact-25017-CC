@@ -6,9 +6,19 @@ import {
   Typography,
   CardActions,
   Button,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product, onAddToCart }) => {
+  const navigate = useNavigate();
+
+  const handleViewDetail = () => {
+    navigate(`/producto/${product.id}`);
+  };
+
   return (
     <Card
       sx={{
@@ -61,15 +71,20 @@ const ProductCard = ({ product, onAddToCart }) => {
           ${product.price.toFixed(2)}
         </Typography>
       </CardContent>
-      <CardActions sx={{ justifyContent: "center" }}>
+      <CardActions sx={{ justifyContent: "space-between" }}>
         <Button
           variant="contained"
           size="small"
           color="primary"
           onClick={onAddToCart}
         >
-          Agregar al carrito
+          Agregar
         </Button>
+        <Tooltip title="Ver detalle">
+          <IconButton color="primary" onClick={handleViewDetail}>
+            <VisibilityIcon />
+          </IconButton>
+        </Tooltip>
       </CardActions>
     </Card>
   );

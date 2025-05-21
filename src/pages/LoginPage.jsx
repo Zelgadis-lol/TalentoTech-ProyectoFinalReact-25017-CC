@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
 import { Container, TextField, Button, Typography, Box } from "@mui/material";
 import Swal from "sweetalert2";
@@ -9,12 +9,15 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/home";
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const success = login(username, password);
     if (success) {
-      navigate("/home");
+      navigate(from, { replace: true });
     } else {
       Swal.fire({
         icon: "error",
@@ -63,7 +66,7 @@ const LoginPage = () => {
         </form>
         <Button
           variant="outlined"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/home")}
           sx={{
             textTransform: "none",
             mt: 2,
@@ -72,7 +75,7 @@ const LoginPage = () => {
             },
           }}
         >
-          ← Volver
+          ← Ir a Home
         </Button>
       </Box>
     </Container>

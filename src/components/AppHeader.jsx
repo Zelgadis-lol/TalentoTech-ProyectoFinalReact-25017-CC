@@ -9,15 +9,18 @@ import {
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useAuth } from "../context/AuthProvider";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const AppHeader = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
   };
+
+  const isActivePath = (path) => location.pathname === path;
 
   return (
     <AppBar
@@ -52,31 +55,38 @@ const AppHeader = () => {
             { label: "Home", path: "/home" },
             { label: "Electronica", path: "/electronica" },
             { label: "Joyería", path: "/joyeria" },
-          ].map((section) => (
-            <Button
-              key={section.label}
-              onClick={() => navigate(section.path)}
-              sx={{
-                color: "white",
-                textTransform: "none",
-                fontWeight: "bold",
-                "&:hover": {
-                  backgroundColor: "#2c2c3a",
-                },
-              }}
-            >
-              {section.label}
-            </Button>
-          ))}
+          ].map((section) => {
+            const isActive = isActivePath(section.path);
+            return (
+              <Button
+                key={section.label}
+                onClick={() => navigate(section.path)}
+                sx={{
+                  color: isActive ? "#ffca28" : "white",
+                  textTransform: "none",
+                  fontWeight: isActive ? "bold" : "normal",
+                  borderBottom: isActive ? "2px solid #ffca28" : "none",
+                  borderRadius: 0,
+                  "&:hover": {
+                    backgroundColor: "#2c2c3a",
+                  },
+                }}
+              >
+                {section.label}
+              </Button>
+            );
+          })}
 
           {isAuthenticated && (
             <Button
               onClick={() => navigate("/admin")}
               sx={{
-                color: "white",
-                fontWeight: "bold",
+                color: isActivePath("/admin") ? "#ffca28" : "white",
+                fontWeight: isActivePath("/admin") ? "bold" : "normal",
                 textTransform: "none",
-                border: "1px solid #ffffff55",
+                border: isActivePath("/admin")
+                  ? "2px solid #ffca28"
+                  : "1px solid #ffffff55",
                 borderRadius: "6px",
                 ml: 1,
                 px: 2,
@@ -134,6 +144,9 @@ const AppHeader = () => {
             color="inherit"
             onClick={() => navigate("/carrito")}
             sx={{
+              color: isActivePath("/carrito") ? "#ffca28" : "white",
+              border: isActivePath("/carrito") ? "2px solid #ffca28" : "none",
+              borderRadius: 1,
               "&:hover": {
                 backgroundColor: "#2c2c3a",
               },
