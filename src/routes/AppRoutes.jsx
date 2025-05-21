@@ -19,17 +19,7 @@ const AppRoutes = () => {
       <Route path="/electronica" element={<Electronica />} />
       <Route path="/joyeria" element={<Joyeria />} />
       <Route path="/producto/:id" element={<ProductDetalle />} />
-
-      <Route
-        path="/carrito"
-        element={
-          isAuthenticated ? (
-            <Carrito />
-          ) : (
-            <Navigate to="/login" replace state={{ from: location }} />
-          )
-        }
-      />
+      <Route path="/carrito" element={<Carrito />} />
 
       <Route
         path="/admin"
