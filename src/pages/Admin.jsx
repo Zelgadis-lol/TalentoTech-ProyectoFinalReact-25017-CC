@@ -24,6 +24,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import React, { useEffect, useState, useCallback } from "react";
 import { AppHeader, Footer } from "../components/Components";
+import { useArticulos } from "../context/ArticulosProvider";
 
 const LOCAL_STORAGE_KEY = "articulos";
 const PLACEHOLDER_IMG =
@@ -51,7 +52,6 @@ const validar = (art) => {
 };
 
 const Admin = () => {
-  const [articulos, setArticulos] = useState([]);
   const [articulo, setArticulo] = useState(getInitialArticulo());
   const [editandoId, setEditandoId] = useState(null);
   const [editArticulo, setEditArticulo] = useState(getInitialArticulo());
@@ -60,37 +60,29 @@ const Admin = () => {
   const [categorias, setCategorias] = useState([]);
   const [confirmarBorrarId, setConfirmarBorrarId] = useState(null);
 
-  useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (stored) {
-      const articulosParsed = JSON.parse(stored);
-      setArticulos(articulosParsed);
-      const cats = [
-        ...new Set(
-          articulosParsed
-            .map((a) => a.category)
-            .filter((c) => typeof c === "string" && c.trim() !== "")
-        ),
-      ];
-      setCategorias(cats);
-    } else {
-      fetch("https://fakestoreapi.com/products")
-        .then((res) => res.json())
-        .then((data) => {
-          setArticulos(data);
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+  const {
+    articulos,
+    fetchArticulos,
+    addArticulo,
+    updateArticulo,
+    deleteArticulo,
+    setArticulos,
+  } = useArticulos();
 
-          const cats = [
-            ...new Set(
-              data
-                .map((a) => a.category)
-                .filter((c) => typeof c === "string" && c.trim() !== "")
-            ),
-          ];
-          setCategorias(cats);
-        });
-    }
-  }, []);
+  useEffect(() => {
+    fetchArticulos();
+  }, [fetchArticulos]);
+
+  useEffect(() => {
+    const cats = articulos
+      .map((a) => a.category)
+      .filter((c) => typeof c === "string" && c.trim() !== "");
+    setCategorias(
+      Array.from(new Set(cats)).sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" })
+      )
+    );
+  }, [articulos]);
 
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
@@ -113,15 +105,12 @@ const Admin = () => {
     setErroresEdit({});
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const err = validar(articulo);
     setErrores(err);
     if (Object.keys(err).length > 0) return;
-    const maxId =
-      articulos.length > 0 ? Math.max(...articulos.map((a) => a.id)) : 0;
-    const nuevoArticulo = {
-      id: maxId + 1,
+    await addArticulo({
       title: articulo.title,
       description: articulo.description,
       price: parseFloat(articulo.price),
@@ -130,12 +119,8 @@ const Admin = () => {
           ? articulo.image
           : PLACEHOLDER_IMG,
       category: articulo.category,
-    };
-    const nuevos = [...articulos, nuevoArticulo];
-    setArticulos(nuevos);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nuevos));
+    });
     resetForm();
-
     if (articulo.category && !categorias.includes(articulo.category)) {
       setCategorias((prev) => [...prev, articulo.category]);
     }
@@ -153,29 +138,21 @@ const Admin = () => {
     setErroresEdit({});
   };
 
-  const guardarEdicion = (id) => {
+  const guardarEdicion = async (id) => {
     const err = validar(editArticulo);
     setErroresEdit(err);
     if (Object.keys(err).length > 0) return;
-    const nuevos = articulos.map((a) =>
-      a.id === id
-        ? {
-            ...a,
-            title: editArticulo.title,
-            description: editArticulo.description,
-            price: parseFloat(editArticulo.price),
-            image:
-              editArticulo.image && editArticulo.image.trim()
-                ? editArticulo.image
-                : PLACEHOLDER_IMG,
-            category: editArticulo.category,
-          }
-        : a
-    );
-    setArticulos(nuevos);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nuevos));
+    await updateArticulo(id, {
+      title: editArticulo.title,
+      description: editArticulo.description,
+      price: parseFloat(editArticulo.price),
+      image:
+        editArticulo.image && editArticulo.image.trim()
+          ? editArticulo.image
+          : PLACEHOLDER_IMG,
+      category: editArticulo.category,
+    });
     resetEdit();
-
     if (editArticulo.category && !categorias.includes(editArticulo.category)) {
       setCategorias((prev) => [...prev, editArticulo.category]);
     }
@@ -189,12 +166,10 @@ const Admin = () => {
     setConfirmarBorrarId(null);
   };
 
-  const handleBorrarConfirmado = () => {
+  const handleBorrarConfirmado = async () => {
     const id = confirmarBorrarId;
     if (!id) return;
-    const nuevos = articulos.filter((a) => a.id !== id);
-    setArticulos(nuevos);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nuevos));
+    await deleteArticulo(id);
     setConfirmarBorrarId(null);
   };
 

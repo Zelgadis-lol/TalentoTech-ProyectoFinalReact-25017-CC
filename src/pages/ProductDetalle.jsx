@@ -12,37 +12,24 @@ import {
 import { AppHeader, Footer } from "../components/Components";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
-
-const LOCAL_STORAGE_KEY = "articulos";
+import { useArticulos } from "../context/ArticulosProvider";
 
 const ProductDetalle = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { getArticulo, loading } = useArticulos();
+  const [articulo, setArticulo] = useState(null);
 
   const { addToCart } = useCart();
   const { showToast } = useAlert();
 
   useEffect(() => {
-    setLoading(true);
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    setTimeout(() => {
-      if (stored) {
-        const articulos = JSON.parse(stored);
-        const encontrado = articulos.find((a) => String(a.id) === String(id));
-        setProduct(encontrado || null);
-      } else {
-        setProduct(null);
-      }
-      setLoading(false);
-    }, 500);
-  }, [id]);
+    getArticulo(id).then(setArticulo);
+  }, [id, getArticulo]);
 
   const handleAddToCart = () => {
-    addToCart(product);
+    addToCart(articulo);
     showToast(<div>Producto agregado al carrito.</div>, "success");
   };
 
@@ -60,26 +47,26 @@ const ProductDetalle = () => {
           <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
             <CircularProgress />
           </Box>
-        ) : error || !product ? (
+        ) : !articulo ? (
           <Typography variant="h6" align="center" sx={{ mt: 5 }}>
-            Producto no encontrado.
+            No se encontró el producto.
           </Typography>
         ) : (
           <Box sx={{ flex: 1 }}>
             <Box
               component="img"
-              src={product.image}
-              alt={product.title}
+              src={articulo.image}
+              alt={articulo.title}
               sx={{ maxWidth: 400, maxHeight: 400, objectFit: "contain" }}
             />
             <Typography variant="h5" gutterBottom>
-              {product.title}
+              {articulo.title}
             </Typography>
             <Typography variant="body1" color="text.secondary" paragraph>
-              {product.description}
+              {articulo.description}
             </Typography>
             <Typography variant="h6" color="primary" gutterBottom>
-              ${product.price.toFixed(2)}
+              ${articulo.price?.toFixed(2)}
             </Typography>
             <Button
               variant="contained"

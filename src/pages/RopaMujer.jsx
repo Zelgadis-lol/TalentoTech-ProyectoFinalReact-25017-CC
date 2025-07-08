@@ -16,36 +16,23 @@ import {
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
 import { Helmet } from "react-helmet";
+import { useArticulos } from "../context/ArticulosProvider";
 
 const LOCAL_STORAGE_KEY = "articulos";
 
 const RopaMujer = () => {
-  const [articulos, setArticulos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   const [precio, setPrecio] = useState([0, 1000]);
   const [descripcion, setDescripcion] = useState("");
 
   const { addToCart } = useCart();
   const { showToast } = useAlert();
+  const { articulos, loading, error, fetchArticulos } = useArticulos();
 
   useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    setLoading(true);
-    setTimeout(() => {
-      if (stored) {
-        setArticulos(JSON.parse(stored));
-        setError(false);
-      } else {
-        setArticulos([]);
-        setError(true);
-      }
-      setLoading(false);
-    }, 500);
-  }, []);
+    fetchArticulos();
+  }, [fetchArticulos]);
 
-  const ropaMujer = articulos.filter((a) => a.category === "women's clothing");
+  const ropaMujer = articulos.filter((a) => a.category === "Ropa de Mujer");
 
   const precios = ropaMujer.map((p) => Number(p.price) || 0);
   const minPrecio = precios.length ? Math.min(...precios) : 0;
@@ -86,9 +73,9 @@ const RopaMujer = () => {
           setPrecio={setPrecio}
           minPrecio={minPrecio}
           maxPrecio={maxPrecio}
-          categoria={"women's clothing"}
+          categoria={"Ropa de Mujer"}
           setCategoria={() => {}}
-          categorias={["women's clothing"]}
+          categorias={["Ropa de Mujer"]}
           descripcion={descripcion}
           setDescripcion={setDescripcion}
           onLimpiar={() => {

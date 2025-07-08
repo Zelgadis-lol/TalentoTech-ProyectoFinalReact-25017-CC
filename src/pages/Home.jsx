@@ -16,15 +16,10 @@ import {
 import Paginado from "../components/Paginado";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
+import { useArticulos } from "../context/ArticulosProvider";
 import { Helmet } from "react-helmet";
 
-const LOCAL_STORAGE_KEY = "articulos";
-
 const Home = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   const [precio, setPrecio] = useState([0, 1000]);
   const [categoria, setCategoria] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -34,46 +29,28 @@ const Home = () => {
 
   const { addToCart } = useCart();
   const { showToast } = useAlert();
+  const {
+    articulos: products,
+    loading,
+    error,
+    fetchArticulos,
+  } = useArticulos();
 
   useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (stored) {
-      const prods = JSON.parse(stored);
-      setProducts(prods);
+    fetchArticulos();
+  }, [fetchArticulos]);
 
-      setCategorias([
+  useEffect(() => {
+    setCategorias(
+      [
         ...new Set(
-          prods
+          products
             .map((a) => a.category)
             .filter((c) => typeof c === "string" && c.trim() !== "")
         ),
-      ]);
-      setLoading(false);
-    } else {
-      fetch("https://fakestoreapi.com/products")
-        .then((res) => {
-          if (!res.ok) throw new Error("Error al obtener productos");
-          return res.json();
-        })
-        .then((data) => {
-          setProducts(data);
-          setCategorias([
-            ...new Set(
-              data
-                .map((a) => a.category)
-                .filter((c) => typeof c === "string" && c.trim() !== "")
-            ),
-          ]);
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
-          setError(false);
-        })
-        .catch((err) => {
-          console.error("Error fetching products:", err);
-          setError(true);
-        })
-        .finally(() => setLoading(false));
-    }
-  }, []);
+      ].sort((a, b) => a.localeCompare(b))
+    );
+  }, [products]);
 
   const precios = products.map((p) => Number(p.price) || 0);
   const minPrecio = precios.length ? Math.min(...precios) : 0;
@@ -83,7 +60,6 @@ const Home = () => {
     setPrecio([minPrecio, maxPrecio]);
   }, [minPrecio, maxPrecio]);
 
-  // Resetear página al cambiar filtros
   useEffect(() => {
     setPagina(1);
   }, [categoria, descripcion, precio[0], precio[1]]);

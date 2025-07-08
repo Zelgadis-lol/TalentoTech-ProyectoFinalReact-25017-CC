@@ -16,36 +16,21 @@ import {
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
 import { Helmet } from "react-helmet";
-
-const LOCAL_STORAGE_KEY = "articulos";
+import { useArticulos } from "../context/ArticulosProvider";
 
 const Joyeria = () => {
-  const [articulos, setArticulos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
   const [precio, setPrecio] = useState([0, 1000]);
   const [descripcion, setDescripcion] = useState("");
 
   const { addToCart } = useCart();
   const { showToast } = useAlert();
+  const { articulos, loading, error, fetchArticulos } = useArticulos();
 
   useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    setLoading(true);
-    setTimeout(() => {
-      if (stored) {
-        setArticulos(JSON.parse(stored));
-        setError(false);
-      } else {
-        setArticulos([]);
-        setError(true);
-      }
-      setLoading(false);
-    }, 500);
-  }, []);
+    fetchArticulos();
+  }, [fetchArticulos]);
 
-  const joyeria = articulos.filter((a) => a.category === "jewelery");
+  const joyeria = articulos.filter((a) => a.category === "Joyería");
 
   const precios = joyeria.map((p) => Number(p.price) || 0);
   const minPrecio = precios.length ? Math.min(...precios) : 0;
@@ -86,9 +71,9 @@ const Joyeria = () => {
           setPrecio={setPrecio}
           minPrecio={minPrecio}
           maxPrecio={maxPrecio}
-          categoria={"jewelery"}
+          categoria={"Joyería"}
           setCategoria={() => {}}
-          categorias={["jewelery"]}
+          categorias={["Joyería"]}
           descripcion={descripcion}
           setDescripcion={setDescripcion}
           onLimpiar={() => {
