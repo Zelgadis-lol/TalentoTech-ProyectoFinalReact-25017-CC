@@ -66,7 +66,7 @@ src/
 
 3. Inicia la aplicación:
    ```bash
-   npm start
+   npm run dev
    ```
 
 ## Uso

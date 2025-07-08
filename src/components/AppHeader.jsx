@@ -52,6 +52,7 @@ const AppHeader = () => {
         backgroundColor: "#1e1e2f",
         boxShadow: 2,
       }}
+      aria-label="Barra de navegación principal"
     >
       <Toolbar
         sx={{
@@ -77,6 +78,7 @@ const AppHeader = () => {
             alignItems: "center",
           }}
           onClick={() => navigate("/home")}
+          aria-label="Ir a la página principal"
         >
           Tienda
         </Typography>
@@ -91,6 +93,8 @@ const AppHeader = () => {
             flexWrap: "wrap",
             overflow: "hidden",
           }}
+          component="nav"
+          aria-label="Navegación de secciones"
         >
           {menuSections.map((section) => {
             const isActive = isActivePath(section.path);
@@ -114,6 +118,8 @@ const AppHeader = () => {
                     backgroundColor: "#2c2c3a",
                   },
                 }}
+                aria-current={isActive ? "page" : undefined}
+                aria-label={`Ir a ${section.label}`}
               >
                 {section.label}
               </Button>
@@ -159,6 +165,7 @@ const AppHeader = () => {
               alignItems: "center",
               justifyContent: "center",
             }}
+            aria-label="Abrir menú de navegación"
           >
             <MenuIcon />
           </IconButton>
@@ -215,6 +222,7 @@ const AppHeader = () => {
                 backgroundColor: "#2c2c3a",
               },
             }}
+            aria-label="Ir al carrito"
           >
             <Badge badgeContent={cartCount} color="warning" showZero={false}>
               <ShoppingCartIcon />

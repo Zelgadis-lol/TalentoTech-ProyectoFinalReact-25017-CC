@@ -15,6 +15,7 @@ import {
 } from "../components/Components";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
+import { Helmet } from "react-helmet";
 
 const LOCAL_STORAGE_KEY = "articulos";
 
@@ -70,9 +71,15 @@ const Joyeria = () => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
+      <Helmet>
+        <title>Joyería - Tienda Online</title>
+        <meta
+          name="description"
+          content="Productos de joyería en la tienda online. Filtra por precio y descripción."
+        />
+      </Helmet>
       <CssBaseline />
       <AppHeader />
-
       <Container maxWidth="100vh" sx={{ flexGrow: 1, py: 4, mt: 2 }}>
         <Filtros
           precio={precio}
@@ -92,7 +99,7 @@ const Joyeria = () => {
         <Grid container spacing={3} justifyContent="center">
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-              <CircularProgress />
+              <CircularProgress aria-label="Cargando productos" />
             </Box>
           ) : error || productosFiltrados.length === 0 ? (
             <Typography variant="h6" align="center" sx={{ mt: 5 }}>
@@ -107,6 +114,25 @@ const Joyeria = () => {
                 <ProductCard
                   product={product}
                   onAddToCart={() => handleAddToCart(product)}
+                  cardProps={{
+                    sx: {
+                      minHeight: 320,
+                      display: "flex",
+                      flexDirection: "column",
+                    },
+                    "aria-label": `Producto: ${product.title}`,
+                  }}
+                  descriptionProps={{
+                    sx: {
+                      minHeight: 48,
+                      display: "block",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    },
+                  }}
+                  addToCartButtonProps={{
+                    "aria-label": `Agregar ${product.title} al carrito`,
+                  }}
                 />
               </Grid>
             ))

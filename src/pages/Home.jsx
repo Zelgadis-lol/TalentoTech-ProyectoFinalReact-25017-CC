@@ -16,6 +16,7 @@ import {
 import Paginado from "../components/Paginado";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
+import { Helmet } from "react-helmet";
 
 const LOCAL_STORAGE_KEY = "articulos";
 
@@ -108,9 +109,15 @@ const Home = () => {
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
+      <Helmet>
+        <title>Tienda Online - Productos</title>
+        <meta
+          name="description"
+          content="Explora y compra productos de electrónica, joyería, ropa y más en nuestra tienda online."
+        />
+      </Helmet>
       <CssBaseline />
       <AppHeader />
-
       <Container maxWidth="100vh" sx={{ flexGrow: 1, py: 4, mt: 2 }}>
         <Filtros
           precio={precio}
@@ -137,7 +144,7 @@ const Home = () => {
         <Grid container spacing={3} justifyContent="center">
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-              <CircularProgress />
+              <CircularProgress aria-label="Cargando productos" />
             </Box>
           ) : error || productosFiltrados.length === 0 ? (
             <Typography variant="h6" align="center" sx={{ mt: 5 }}>
@@ -158,6 +165,7 @@ const Home = () => {
                       display: "flex",
                       flexDirection: "column",
                     },
+                    "aria-label": `Producto: ${product.title}`,
                   }}
                   descriptionProps={{
                     sx: {
@@ -166,6 +174,9 @@ const Home = () => {
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                     },
+                  }}
+                  addToCartButtonProps={{
+                    "aria-label": `Agregar ${product.title} al carrito`,
                   }}
                 />
               </Grid>
