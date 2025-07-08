@@ -14,6 +14,11 @@ import {
   Select,
   InputLabel,
   FormControl,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -37,7 +42,10 @@ const validar = (art) => {
   if (!art.title.trim()) err.title = "El título es obligatorio";
   if (!art.description.trim())
     err.description = "La descripción es obligatoria";
+  if (art.description.length < 10)
+    err.description = "La descripción debe tener mas de 10 caracteres";
   if (!art.price) err.price = "El precio es obligatorio";
+  if (art.price <= 0) err.price = "El precio debe ser mayor a cero";
   if (!art.category) err.category = "La categoría es obligatoria";
   return err;
 };
@@ -50,6 +58,7 @@ const Admin = () => {
   const [errores, setErrores] = useState({});
   const [erroresEdit, setErroresEdit] = useState({});
   const [categorias, setCategorias] = useState([]);
+  const [confirmarBorrarId, setConfirmarBorrarId] = useState(null);
 
   useEffect(() => {
     const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -172,10 +181,21 @@ const Admin = () => {
     }
   };
 
-  const borrarArticulo = (id) => {
+  const handleConfirmarBorrar = (id) => {
+    setConfirmarBorrarId(id);
+  };
+
+  const handleCerrarDialogo = () => {
+    setConfirmarBorrarId(null);
+  };
+
+  const handleBorrarConfirmado = () => {
+    const id = confirmarBorrarId;
+    if (!id) return;
     const nuevos = articulos.filter((a) => a.id !== id);
     setArticulos(nuevos);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nuevos));
+    setConfirmarBorrarId(null);
   };
 
   return (
@@ -196,7 +216,7 @@ const Admin = () => {
           sx={{
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-            alignItems: "flex-start",
+            alignItems: { xs: "center", md: "flex-start" },
             justifyContent: "center",
             width: "100%",
             gap: 4,
@@ -485,7 +505,7 @@ const Admin = () => {
                           </IconButton>
                           <IconButton
                             color="error"
-                            onClick={() => borrarArticulo(a.id)}
+                            onClick={() => handleConfirmarBorrar(a.id)}
                           >
                             <DeleteIcon />
                           </IconButton>
@@ -506,6 +526,27 @@ const Admin = () => {
           </Card>
         </Box>
       </Box>
+      <Dialog open={!!confirmarBorrarId} onClose={handleCerrarDialogo}>
+        <DialogTitle>Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            ¿Estás seguro que deseas eliminar este artículo? Esta acción no se
+            puede deshacer.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCerrarDialogo} color="primary">
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleBorrarConfirmado}
+            color="error"
+            variant="contained"
+          >
+            Eliminar
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Footer />
     </div>
   );

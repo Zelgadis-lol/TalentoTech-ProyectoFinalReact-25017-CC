@@ -7,7 +7,12 @@ import {
   Container,
   CircularProgress,
 } from "@mui/material";
-import { AppHeader, Footer, ProductCard } from "../components/Components";
+import {
+  AppHeader,
+  Footer,
+  ProductCard,
+  Filtros,
+} from "../components/Components";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
 
@@ -17,6 +22,9 @@ const Joyeria = () => {
   const [articulos, setArticulos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const [precio, setPrecio] = useState([0, 1000]);
+  const [descripcion, setDescripcion] = useState("");
 
   const { addToCart } = useCart();
   const { showToast } = useAlert();
@@ -38,6 +46,23 @@ const Joyeria = () => {
 
   const joyeria = articulos.filter((a) => a.category === "jewelery");
 
+  const precios = joyeria.map((p) => Number(p.price) || 0);
+  const minPrecio = precios.length ? Math.min(...precios) : 0;
+  const maxPrecio = precios.length ? Math.max(...precios) : 1000;
+
+  useEffect(() => {
+    setPrecio([minPrecio, maxPrecio]);
+  }, [minPrecio, maxPrecio]);
+
+  const productosFiltrados = joyeria.filter(
+    (p) =>
+      (!descripcion ||
+        p.description.toLowerCase().includes(descripcion.toLowerCase()) ||
+        p.title.toLowerCase().includes(descripcion.toLowerCase())) &&
+      Number(p.price) >= precio[0] &&
+      Number(p.price) <= precio[1]
+  );
+
   const handleAddToCart = (product) => {
     addToCart(product);
     showToast(<div>Producto agregado al carrito.</div>, "success");
@@ -48,22 +73,33 @@ const Joyeria = () => {
       <CssBaseline />
       <AppHeader />
 
-      <Container maxWidth="100vh" sx={{ flexGrow: 1, py: 4, mt: 5 }}>
-        <Typography variant="h4" gutterBottom>
-          Productos
-        </Typography>
-
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-            <CircularProgress />
-          </Box>
-        ) : error || joyeria.length === 0 ? (
-          <Typography variant="h6" align="center" sx={{ mt: 5 }}>
-            Sin artículos disponibles.
-          </Typography>
-        ) : (
-          <Grid container spacing={3} justifyContent="center">
-            {joyeria.map((product) => (
+      <Container maxWidth="100vh" sx={{ flexGrow: 1, py: 4, mt: 2 }}>
+        <Filtros
+          precio={precio}
+          setPrecio={setPrecio}
+          minPrecio={minPrecio}
+          maxPrecio={maxPrecio}
+          categoria={"jewelery"}
+          setCategoria={() => {}}
+          categorias={["jewelery"]}
+          descripcion={descripcion}
+          setDescripcion={setDescripcion}
+          onLimpiar={() => {
+            setDescripcion("");
+            setPrecio([minPrecio, maxPrecio]);
+          }}
+        />
+        <Grid container spacing={3} justifyContent="center">
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+              <CircularProgress />
+            </Box>
+          ) : error || productosFiltrados.length === 0 ? (
+            <Typography variant="h6" align="center" sx={{ mt: 5 }}>
+              Sin artículos disponibles.
+            </Typography>
+          ) : (
+            productosFiltrados.reverse().map((product) => (
               <Grid
                 key={product.id}
                 sx={{ display: "flex", justifyContent: "center", mt: 3 }}
@@ -73,11 +109,10 @@ const Joyeria = () => {
                   onAddToCart={() => handleAddToCart(product)}
                 />
               </Grid>
-            ))}
-          </Grid>
-        )}
+            ))
+          )}
+        </Grid>
       </Container>
-
       <Footer />
     </Box>
   );
