@@ -13,6 +13,8 @@ import { AppHeader, Footer } from "../components/Components";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
 
+const LOCAL_STORAGE_KEY = "articulos";
+
 const ProductDetalle = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,20 +27,18 @@ const ProductDetalle = () => {
   const { showToast } = useAlert();
 
   useEffect(() => {
-    fetch(`https://fakestoreapi.com/products/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Producto no encontrado");
-        return res.json();
-      })
-      .then((data) => {
-        setProduct(data);
-        setError(false);
-      })
-      .catch((err) => {
-        console.error("Error:", err);
-        setError(true);
-      })
-      .finally(() => setLoading(false));
+    setLoading(true);
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    setTimeout(() => {
+      if (stored) {
+        const articulos = JSON.parse(stored);
+        const encontrado = articulos.find((a) => String(a.id) === String(id));
+        setProduct(encontrado || null);
+      } else {
+        setProduct(null);
+      }
+      setLoading(false);
+    }, 500);
   }, [id]);
 
   const handleAddToCart = () => {
@@ -65,34 +65,30 @@ const ProductDetalle = () => {
             Producto no encontrado.
           </Typography>
         ) : (
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <Box
-                component="img"
-                src={product.image}
-                alt={product.title}
-                sx={{ width: "100%", maxHeight: 400, objectFit: "contain" }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="h5" gutterBottom>
-                {product.title}
-              </Typography>
-              <Typography variant="body1" color="text.secondary" paragraph>
-                {product.description}
-              </Typography>
-              <Typography variant="h6" color="primary" gutterBottom>
-                ${product.price.toFixed(2)}
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleAddToCart}
-              >
-                Agregar al carrito
-              </Button>
-            </Grid>
-          </Grid>
+          <Box sx={{ flex: 1 }}>
+            <Box
+              component="img"
+              src={product.image}
+              alt={product.title}
+              sx={{ maxWidth: 400, maxHeight: 400, objectFit: "contain" }}
+            />
+            <Typography variant="h5" gutterBottom>
+              {product.title}
+            </Typography>
+            <Typography variant="body1" color="text.secondary" paragraph>
+              {product.description}
+            </Typography>
+            <Typography variant="h6" color="primary" gutterBottom>
+              ${product.price.toFixed(2)}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddToCart}
+            >
+              Agregar al carrito
+            </Button>
+          </Box>
         )}
       </Container>
 

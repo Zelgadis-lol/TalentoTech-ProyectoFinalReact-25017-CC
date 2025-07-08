@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   CssBaseline,
@@ -11,8 +11,10 @@ import { AppHeader, Footer, ProductCard } from "../components/Components";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
 
+const LOCAL_STORAGE_KEY = "articulos";
+
 const Electronica = () => {
-  const [products, setProducts] = useState([]);
+  const [articulos, setArticulos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -20,21 +22,21 @@ const Electronica = () => {
   const { showToast } = useAlert();
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products/category/electronics")
-      .then((res) => {
-        if (!res.ok) throw new Error("Error al obtener productos");
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data);
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    setLoading(true);
+    setTimeout(() => {
+      if (stored) {
+        setArticulos(JSON.parse(stored));
         setError(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching products:", err);
+      } else {
+        setArticulos([]);
         setError(true);
-      })
-      .finally(() => setLoading(false));
+      }
+      setLoading(false);
+    }, 500);
   }, []);
+
+  const electronica = articulos.filter((a) => a.category === "electronics");
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -55,13 +57,13 @@ const Electronica = () => {
           <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
             <CircularProgress />
           </Box>
-        ) : error || products.length === 0 ? (
+        ) : error || electronica.length === 0 ? (
           <Typography variant="h6" align="center" sx={{ mt: 5 }}>
             Sin artículos disponibles.
           </Typography>
         ) : (
           <Grid container spacing={3} justifyContent="center">
-            {products.map((product) => (
+            {electronica.map((product) => (
               <Grid
                 key={product.id}
                 sx={{ display: "flex", justifyContent: "center", mt: 3 }}

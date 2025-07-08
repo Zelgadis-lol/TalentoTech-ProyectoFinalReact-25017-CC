@@ -13,7 +13,7 @@ import { useAlert } from "../context/AlertProvider";
 
 const LOCAL_STORAGE_KEY = "articulos";
 
-const Joyeria = () => {
+const RopaMujer = () => {
   const [articulos, setArticulos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -36,7 +36,7 @@ const Joyeria = () => {
     }, 500);
   }, []);
 
-  const joyeria = articulos.filter((a) => a.category === "jewelery");
+  const ropaMujer = articulos.filter((a) => a.category === "women's clothing");
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -57,13 +57,13 @@ const Joyeria = () => {
           <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
             <CircularProgress />
           </Box>
-        ) : error || joyeria.length === 0 ? (
+        ) : error || ropaMujer.length === 0 ? (
           <Typography variant="h6" align="center" sx={{ mt: 5 }}>
             Sin artículos disponibles.
           </Typography>
         ) : (
           <Grid container spacing={3} justifyContent="center">
-            {joyeria.map((product) => (
+            {ropaMujer.map((product) => (
               <Grid
                 key={product.id}
                 sx={{ display: "flex", justifyContent: "center", mt: 3 }}
@@ -83,4 +83,4 @@ const Joyeria = () => {
   );
 };
 
-export default Joyeria;
+export default RopaMujer;

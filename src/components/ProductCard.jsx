@@ -22,7 +22,7 @@ const ProductCard = ({ product, onAddToCart }) => {
   return (
     <Card
       sx={{
-        maxWidth: 280,
+        width: 280,
         display: "flex",
         flexDirection: "column",
         height: "100%",

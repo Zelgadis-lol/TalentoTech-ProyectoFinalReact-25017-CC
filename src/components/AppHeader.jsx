@@ -10,11 +10,18 @@ import {
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useAuth } from "../context/AuthProvider";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useCart } from "../context/CartProvider";
+import Badge from "@mui/material/Badge";
 
 const AppHeader = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { cartItems } = useCart();
+
+  const cartCount = Array.isArray(cartItems)
+    ? new Set(cartItems.map((item) => item.id)).size
+    : 0;
 
   const handleLogout = () => {
     logout();
@@ -55,6 +62,8 @@ const AppHeader = () => {
             { label: "Home", path: "/home" },
             { label: "Electronica", path: "/electronica" },
             { label: "Joyería", path: "/joyeria" },
+            { label: "Ropa Hombre", path: "/ropahombre" },
+            { label: "Ropa Mujer", path: "/ropamujer" },
           ].map((section) => {
             const isActive = isActivePath(section.path);
             return (
@@ -152,7 +161,9 @@ const AppHeader = () => {
               },
             }}
           >
-            <ShoppingCartIcon />
+            <Badge badgeContent={cartCount} color="warning" showZero={false}>
+              <ShoppingCartIcon />
+            </Badge>
           </IconButton>
         </Box>
       </Toolbar>

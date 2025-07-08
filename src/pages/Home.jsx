@@ -11,6 +11,8 @@ import { AppHeader, Footer, ProductCard } from "../components/Components";
 import { useCart } from "../context/CartProvider";
 import { useAlert } from "../context/AlertProvider";
 
+const LOCAL_STORAGE_KEY = "articulos";
+
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,20 +22,27 @@ const Home = () => {
   const { showToast } = useAlert();
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
-      .then((res) => {
-        if (!res.ok) throw new Error("Error al obtener productos");
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data);
-        setError(false);
-      })
-      .catch((err) => {
-        console.error("Error fetching products:", err);
-        setError(true);
-      })
-      .finally(() => setLoading(false));
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      setProducts(JSON.parse(stored));
+      setLoading(false);
+    } else {
+      fetch("https://fakestoreapi.com/products")
+        .then((res) => {
+          if (!res.ok) throw new Error("Error al obtener productos");
+          return res.json();
+        })
+        .then((data) => {
+          setProducts(data);
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+          setError(false);
+        })
+        .catch((err) => {
+          console.error("Error fetching products:", err);
+          setError(true);
+        })
+        .finally(() => setLoading(false));
+    }
   }, []);
 
   const handleAddToCart = (product) => {
@@ -61,7 +70,7 @@ const Home = () => {
           </Typography>
         ) : (
           <Grid container spacing={3} justifyContent="center">
-            {products.map((product) => (
+            {[...products].reverse().map((product) => (
               <Grid
                 key={product.id}
                 sx={{ display: "flex", justifyContent: "center", mt: 3 }}
@@ -69,6 +78,21 @@ const Home = () => {
                 <ProductCard
                   product={product}
                   onAddToCart={() => handleAddToCart(product)}
+                  cardProps={{
+                    sx: {
+                      minHeight: 320,
+                      display: "flex",
+                      flexDirection: "column",
+                    },
+                  }}
+                  descriptionProps={{
+                    sx: {
+                      minHeight: 48,
+                      display: "block",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    },
+                  }}
                 />
               </Grid>
             ))}
