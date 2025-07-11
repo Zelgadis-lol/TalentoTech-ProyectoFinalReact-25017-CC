@@ -1,4 +1,9 @@
-# Tienda React - Proyecto Final
+# 🛒 Tienda React - Proyecto Final
+
+## 🌟 **DEMO EN VIVO** 
+### 👀 [Ver proyecto desplegado](https://fluffy-souffle-1b2aed.netlify.app) 🚀
+
+---
 
 Comisión 25017 - CC
 
