@@ -1,7 +1,7 @@
 # 🛒 Tienda React - Proyecto Final
 
 ## 🌟 **DEMO EN VIVO** 
-### 👀 [Ver proyecto desplegado](https://fluffy-souffle-1b2aed.netlify.app) 🚀
+### 👀 [Ver proyecto desplegado](https://talentotech-tp-react-25017-cc.netlify.app) 🚀
 
 ---
 
